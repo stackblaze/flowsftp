@@ -312,25 +312,57 @@ textarea {
 
 /* Splitter */
 .bt-splitter-h {
-  flex: 0 0 4px;
+  /* Wider hit target than the visible line — 4px was too narrow to grab
+   * comfortably and users routinely missed it. The visible line is still
+   * 2px (drawn by ::before); the surrounding padding is just transparent
+   * grab area. */
+  flex: 0 0 10px;
   cursor: col-resize;
   background: transparent;
   position: relative;
   z-index: 5;
   transition: background 0.12s ease;
+  /* Show the resize cursor across the entire pad, not just the thin line. */
+  user-select: none;
 }
 .bt-splitter-h::before {
   content: "";
   position: absolute;
-  left: 1px;
-  right: 1px;
+  left: 4px;
+  right: 4px;
   top: 0;
   bottom: 0;
   background: var(--bt-border);
 }
+/* Center grip dots so users can see this is a draggable handle. */
+.bt-splitter-h::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;
+  height: 28px;
+  transform: translate(-50%, -50%);
+  background-image: radial-gradient(
+    circle,
+    var(--bt-text-muted) 0.8px,
+    transparent 1px
+  );
+  background-size: 2px 5px;
+  background-repeat: repeat-y;
+  opacity: 0.5;
+  transition: opacity 0.12s ease;
+  pointer-events: none;
+}
 .bt-splitter-h:hover::before,
 .bt-splitter-h.is-dragging::before {
   background: var(--bt-accent);
+  left: 3px;
+  right: 3px;
+}
+.bt-splitter-h:hover::after,
+.bt-splitter-h.is-dragging::after {
+  opacity: 0.95;
 }
 
 .bt-splitter-v {

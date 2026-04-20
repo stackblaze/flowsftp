@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, nativeImage } from "electron";
 import { join } from "path";
 import { electronApp, optimizer } from "@electron-toolkit/utils";
 import { SftpManager } from "./sftp/sftp-manager";
@@ -11,7 +11,7 @@ import { SessionsStore } from "./sessions/sessions-store";
 import { JobStore } from "./transfer/job-store";
 import { TransferQueue } from "./transfer/queue";
 import { TransferEngine } from "./transfer/engine";
-import { createMainWindow } from "./window-manager";
+import { APP_ICON_PATH, createMainWindow } from "./window-manager";
 import { setAppMenu } from "./app-menu";
 import { TrayManager } from "./tray-manager";
 import { UpdateManager } from "./update-manager";
@@ -33,6 +33,20 @@ function openWindow(): void {
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId("com.flowsftp.app");
+
+  /* In dev, the macOS dock shows the bundled Electron icon (the atom)
+   * because the app isn't packaged yet. `app.dock.setIcon()` overrides
+   * it at runtime so the developer sees the real FlowSFTP brand. In
+   * production the .icns from electron-builder takes over and this is
+   * a harmless no-op. */
+  if (process.platform === "darwin" && app.dock) {
+    try {
+      app.dock.setIcon(nativeImage.createFromPath(APP_ICON_PATH));
+    } catch {
+      /* Non-fatal — the worst case is the dock keeps showing the
+       * Electron atom in dev. */
+    }
+  }
 
   const sessionsStore = new SessionsStore();
 

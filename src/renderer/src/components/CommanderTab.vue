@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
 import type {
   Job,
   JobInput,
@@ -71,9 +71,48 @@ const emit = defineEmits<{
 const tabs = useTabsStore();
 const api = window.api;
 
-const splitRatio = ref<number>(50);
+/* Persist the splitter position across reloads so the user's preferred
+ * layout sticks, but default to a clean 50/50 split for first-run. The
+ * key is global (not per-tab) — users expect every pane to share the
+ * same split feel, the way file managers behave. */
+const SPLIT_STORAGE_KEY = "flowsftp:commander:split-ratio";
+
+/** Fixed middle gutter (splitter + action column). Must match the grid
+ *  template and the `.bt-splitter-h` / `.commander__center` widths. */
+const SPLITTER_PX = 10;
+const CENTER_COL_PX = 28;
+const MID_FIXED_PX = SPLITTER_PX + CENTER_COL_PX;
+
+/** Ratio 1–99 maps to `local : remote` fr weights (WinSCP-like: no hard
+ *  18–82% cap; the grid `minmax(0, …fr)` tracks are what actually allow
+ *  shrinking past the table column-sum). */
+function readInitialSplit(): number {
+  try {
+    const raw = localStorage.getItem(SPLIT_STORAGE_KEY);
+    if (raw == null) return 50;
+    const n = Number.parseFloat(raw);
+    if (!Number.isFinite(n)) return 50;
+    return Math.min(99, Math.max(1, n));
+  } catch {
+    return 50;
+  }
+}
+const splitRatio = ref<number>(readInitialSplit());
+watch(splitRatio, (n) => {
+  try {
+    localStorage.setItem(SPLIT_STORAGE_KEY, String(n));
+  } catch {
+    /* Storage may be unavailable in private mode — drop silently. */
+  }
+});
 const isSplitterDragging = ref(false);
 const containerEl = ref<HTMLDivElement | null>(null);
+
+/** Snap back to 50/50. Wired to the splitter's double-click for a quick
+ *  recenter without diving into a menu. */
+function resetSplit(): void {
+  splitRatio.value = 50;
+}
 
 /* Which pane the user most recently interacted with. F5/F6 (Copy/Move)
  * use this to decide direction: local-focused → upload, remote-focused
@@ -92,9 +131,15 @@ function startSplitDrag(e: MouseEvent): void {
   document.body.style.userSelect = "none";
 
   const onMove = (ev: MouseEvent): void => {
+    /* Map pointer X to the *flexible* width between the two panes only.
+     *  Old code used `x / rect.width`, which skewed the ratio because the
+     *  splitter + center strip is not part of the left/right share. */
+    const flexW = rect.width - MID_FIXED_PX;
+    if (flexW <= 1) return;
     const x = ev.clientX - rect.left;
-    const pct = (x / rect.width) * 100;
-    splitRatio.value = Math.min(82, Math.max(18, pct));
+    const leftPx = Math.min(Math.max(0, x), flexW);
+    const pct = (leftPx / flexW) * 100;
+    splitRatio.value = Math.min(99, Math.max(1, pct));
   };
   const onUp = (): void => {
     isSplitterDragging.value = false;
@@ -107,8 +152,13 @@ function startSplitDrag(e: MouseEvent): void {
   window.addEventListener("mouseup", onUp);
 }
 
-const localFlex = computed(() => splitRatio.value);
-const remoteFlex = computed(() => 100 - splitRatio.value);
+/** CSS Grid is more reliable than flex here: `minmax(0, Nfr)` guarantees
+ *  each pane can shrink to zero *track* width so wide tables scroll inside
+ *  the pane instead of blocking the splitter (flex `min-width:auto` on
+ *  descendants was still pinning ~70–75% local in practice). */
+const splitGridStyle = computed(() => ({
+  gridTemplateColumns: `minmax(0, ${splitRatio.value}fr) ${SPLITTER_PX}px ${CENTER_COL_PX}px minmax(0, ${100 - splitRatio.value}fr)`,
+}));
 
 /* --- File pane action handlers --- */
 
@@ -1020,39 +1070,42 @@ function onSyncClose(
 
 <template>
   <div class="commander">
-    <div ref="containerEl" class="commander__split">
-      <FilePane
-        pane="local"
-        :tab="tab"
-        :style="{ flex: `${localFlex} 1 0` }"
-        @navigate="navigateLocal"
-        @go-up="goUpLocal"
-        @go-home="goHomeLocal"
-        @refresh="refreshLocal"
-        @select="selectLocal"
-        @activate="activateLocal"
-        @upload="uploadSelected"
-        @download="downloadSelected"
-        @move="moveSelected('toRemote')"
-        @transfer-now="transferAllSelected('toRemote')"
-        @pane-drop="transferAllSelected('toLocal')"
-        @drop-files="dropFiles"
-        @toast="(m) => emit('toast', m)"
-        @request-delete-selection="emit('request-delete', 'local')"
-        @request-properties="
-          (entry) => emit('request-properties', { pane: 'local', entry })
-        "
-        @request-edit="
-          (entry) => emit('request-edit', { pane: 'local', entry })
-        "
-      />
+    <div ref="containerEl" class="commander__split" :style="splitGridStyle">
+      <div class="commander__pane-wrap">
+        <FilePane
+          pane="local"
+          :tab="tab"
+          @navigate="navigateLocal"
+          @go-up="goUpLocal"
+          @go-home="goHomeLocal"
+          @refresh="refreshLocal"
+          @select="selectLocal"
+          @activate="activateLocal"
+          @upload="uploadSelected"
+          @download="downloadSelected"
+          @move="moveSelected('toRemote')"
+          @transfer-now="transferAllSelected('toRemote')"
+          @pane-drop="transferAllSelected('toLocal')"
+          @drop-files="dropFiles"
+          @toast="(m) => emit('toast', m)"
+          @request-delete-selection="emit('request-delete', 'local')"
+          @request-properties="
+            (entry) => emit('request-properties', { pane: 'local', entry })
+          "
+          @request-edit="
+            (entry) => emit('request-edit', { pane: 'local', entry })
+          "
+        />
+      </div>
 
       <div
         class="bt-splitter-h"
         :class="{ 'is-dragging': isSplitterDragging }"
         role="separator"
         aria-orientation="vertical"
+        title="Drag to resize • Double-click to center"
         @mousedown="startSplitDrag"
+        @dblclick="resetSplit"
       />
 
       <div class="commander__center">
@@ -1099,11 +1152,7 @@ function onSyncClose(
         </button>
       </div>
 
-      <div
-        v-if="tab.isConnected"
-        class="commander__pane-wrap"
-        :style="{ flex: `${remoteFlex} 1 0`, display: 'flex', minWidth: 0 }"
-      >
+      <div v-if="tab.isConnected" class="commander__pane-wrap">
         <FilePane
           pane="remote"
           :tab="tab"
@@ -1131,12 +1180,7 @@ function onSyncClose(
         />
       </div>
 
-      <div
-        v-else
-        class="disconnected"
-        :style="{ flex: `${remoteFlex} 1 0` }"
-        aria-label="Not connected"
-      >
+      <div v-else class="disconnected" aria-label="Not connected">
         <Server :size="40" class="disconnected__icon" />
         <h3>Not connected</h3>
         <p>Open the Login dialog to connect to a server.</p>
@@ -1182,9 +1226,11 @@ function onSyncClose(
 }
 
 .commander__split {
-  display: flex;
+  /* `grid-template-columns` comes from `splitGridStyle` (inline). */
+  display: grid;
   flex: 1 1 auto;
   min-height: 0;
+  min-width: 0;
   align-items: stretch;
 }
 
@@ -1194,7 +1240,9 @@ function onSyncClose(
   align-items: center;
   gap: 4px;
   padding: 8px 2px;
-  flex: 0 0 28px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
   background: var(--bt-bg);
   border-left: 1px solid var(--bt-border);
   border-right: 1px solid var(--bt-border);
@@ -1206,8 +1254,10 @@ function onSyncClose(
 
 .commander__pane-wrap {
   display: flex;
-  flex: 1 1 auto;
+  flex-direction: column;
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .disconnected {

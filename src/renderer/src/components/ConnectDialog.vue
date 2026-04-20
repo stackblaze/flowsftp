@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import {
+  Activity,
   ArrowDownToLine,
   ArrowUpFromLine,
+  CheckCircle2,
   Copy,
   FolderOpen,
   KeyRound,
+  Loader2,
   Network,
   Plug,
   Plus,
@@ -14,6 +17,7 @@ import {
   Star,
   Trash2,
   X,
+  XCircle,
 } from "@renderer/lib/icons";
 import { useSessionsStore } from "@renderer/stores/sessions";
 import type { Session, SessionInput } from "@shared/types";
@@ -64,6 +68,17 @@ const isDirty = ref(false);
 const errorMsg = ref<string>("");
 const ioBusy = ref<"import" | "export" | null>(null);
 const ioMsg = ref<string>("");
+
+/* Test-connection state. We don't surface a numeric latency or banner
+ * info — the goal is a binary "yes the credentials/host work" answer
+ * that catches typos before the user clicks Login and gets dropped
+ * into a half-broken tab. */
+type TestState =
+  | { status: "idle" }
+  | { status: "running" }
+  | { status: "ok"; cwd: string; ms: number }
+  | { status: "fail"; message: string };
+const testState = ref<TestState>({ status: "idle" });
 
 const hostInputRef = ref<HTMLInputElement | null>(null);
 
@@ -141,6 +156,12 @@ watch(
   draft,
   () => {
     isDirty.value = true;
+    /* Any field edit invalidates the previous test result — keeping a
+     * stale "OK" badge after the user mutates host/credentials would
+     * be misleading. */
+    if (testState.value.status !== "running") {
+      testState.value = { status: "idle" };
+    }
   },
   { deep: true },
 );
@@ -273,6 +294,66 @@ async function importSites(): Promise<void> {
     }
   } finally {
     ioBusy.value = null;
+  }
+}
+
+/**
+ * Open a throwaway SFTP session purely to verify the host/credentials,
+ * then immediately tear it down. Reports a friendly success/failure
+ * message inline so the user can iterate on a typo without round-
+ * tripping through a real connection attempt that would commit a tab.
+ */
+async function testConnection(): Promise<void> {
+  if (!canLogin.value) {
+    testState.value = {
+      status: "fail",
+      message: "Host and username are required.",
+    };
+    return;
+  }
+  testState.value = { status: "running" };
+  errorMsg.value = "";
+  const started = performance.now();
+  const input = {
+    host: draft.value.host.trim(),
+    port: draft.value.port,
+    username: draft.value.username.trim(),
+    password: draft.value.password || undefined,
+    privateKeyPath: draft.value.privateKeyPath.trim() || undefined,
+  };
+  const r = await window.api.sftp.connect(input);
+  if (!r.ok) {
+    testState.value = {
+      status: "fail",
+      message: r.error.message || "Connection failed.",
+    };
+    return;
+  }
+  const { connectionId } = r.data;
+  try {
+    /* `cwd` is the cheapest round-trip we can do that proves the
+     * SFTP subsystem actually came up — `connect` alone only proves
+     * the SSH transport handshake succeeded. */
+    const cwd = await window.api.sftp.cwd(connectionId);
+    if (!cwd.ok) {
+      testState.value = {
+        status: "fail",
+        message: cwd.error.message || "SFTP subsystem unreachable.",
+      };
+      return;
+    }
+    testState.value = {
+      status: "ok",
+      cwd: cwd.data,
+      ms: Math.round(performance.now() - started),
+    };
+  } finally {
+    /* Always release the throwaway session — keeping it open would
+     * leak a TCP connection per click of Test. */
+    await window.api.sftp.disconnect(connectionId).catch(() => {
+      /* Disconnect failures here are non-fatal; the main process will
+       * GC the client when its socket eventually times out. */
+    });
   }
 }
 
@@ -543,6 +624,26 @@ onBeforeUnmount(() => {
             <div v-if="errorMsg" class="cd__error" role="alert">
               {{ errorMsg }}
             </div>
+
+            <div
+              v-if="testState.status === 'ok'"
+              class="cd__test-result cd__test-result--ok"
+              role="status"
+            >
+              <CheckCircle2 :size="14" />
+              <span>
+                Connected to <strong>{{ draft.host }}</strong> in
+                {{ testState.ms }} ms (cwd: {{ testState.cwd }}).
+              </span>
+            </div>
+            <div
+              v-else-if="testState.status === 'fail'"
+              class="cd__test-result cd__test-result--fail"
+              role="alert"
+            >
+              <XCircle :size="14" />
+              <span>{{ testState.message }}</span>
+            </div>
           </section>
         </div>
 
@@ -577,6 +678,24 @@ onBeforeUnmount(() => {
             </button>
           </div>
           <div class="cd__foot-right">
+            <button
+              type="button"
+              class="bt-btn"
+              data-tooltip="Verify host & credentials without opening a tab"
+              :disabled="!canLogin || testState.status === 'running'"
+              :aria-busy="testState.status === 'running'"
+              @click="testConnection"
+            >
+              <Loader2
+                v-if="testState.status === 'running'"
+                :size="13"
+                class="cd__spin"
+              />
+              <Activity v-else :size="13" />
+              <span>{{
+                testState.status === "running" ? "Testing…" : "Test"
+              }}</span>
+            </button>
             <button type="button" class="bt-btn" @click="cancel">Cancel</button>
             <button
               type="button"
@@ -851,6 +970,40 @@ onBeforeUnmount(() => {
   color: var(--bt-danger);
   border-radius: var(--bt-radius-sm);
   font-size: var(--bt-fs-sm);
+}
+
+.cd__test-result {
+  margin-top: 8px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: var(--bt-radius-sm);
+  font-size: var(--bt-fs-sm);
+  border: 1px solid transparent;
+  line-height: 1.35;
+}
+.cd__test-result--ok {
+  background: color-mix(in srgb, var(--bt-success, #16a34a) 12%, transparent);
+  border-color: color-mix(in srgb, var(--bt-success, #16a34a) 40%, transparent);
+  color: var(--bt-success, #16a34a);
+}
+.cd__test-result--fail {
+  background: color-mix(in srgb, var(--bt-danger) 12%, transparent);
+  border-color: color-mix(in srgb, var(--bt-danger) 40%, transparent);
+  color: var(--bt-danger);
+}
+.cd__test-result strong {
+  font-weight: 600;
+}
+
+.cd__spin {
+  animation: cd-spin 0.9s linear infinite;
+}
+@keyframes cd-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .cd__foot {

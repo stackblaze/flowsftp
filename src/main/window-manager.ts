@@ -4,6 +4,10 @@ import { is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
 import type { SftpManager } from "./sftp/sftp-manager";
 
+/* The bundled icon path is exposed for callers that need it outside of
+ * the BrowserWindow constructor (e.g. `app.dock.setIcon` on macOS). */
+export const APP_ICON_PATH = icon;
+
 /**
  * Creates a main FlowSFTP commander window. Each window is isolated (own Vue app).
  * SFTP connections are tied to `webContents.id` for progress events and cleanup on close.
@@ -17,7 +21,10 @@ export function createMainWindow(sftp: SftpManager): BrowserWindow {
     show: false,
     title: "FlowSFTP",
     autoHideMenuBar: false,
-    ...(process.platform === "linux" ? { icon } : {}),
+    /* macOS ignores `icon` on BrowserWindow — the dock icon comes from the
+     * packaged .icns. We still set it on Windows/Linux where it controls
+     * the taskbar entry and (on Linux) the window decoration. */
+    ...(process.platform !== "darwin" ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, "../preload/index.js"),
       sandbox: false,

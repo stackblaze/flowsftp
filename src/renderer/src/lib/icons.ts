@@ -4,6 +4,7 @@
  * directly so additions/removals stay in one file.
  */
 export {
+  Activity,
   AlertCircle,
   ArrowDown,
   ArrowDownToLine,

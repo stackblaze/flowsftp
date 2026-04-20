@@ -1392,6 +1392,13 @@ onBeforeUnmount(() => {
 
 .pane__list {
   flex: 1 1 auto;
+  /* Without `min-width: 0` the flex child's implicit min-width is its
+   * content's min-width — i.e. the full table column-sum. That bubbles
+   * up and forces the pane to be at least as wide as the table, which
+   * in turn breaks the 50/50 splitter ratio because the pane refuses to
+   * shrink. With `min-width: 0` the pane honours its flex share and the
+   * table simply scrolls horizontally inside it. */
+  min-width: 0;
   overflow: auto;
   position: relative;
   background: var(--bt-panel);
