@@ -1,14 +1,16 @@
 import { resolve } from 'path'
 import { defineConfig } from 'electron-vite'
 import vue from '@vitejs/plugin-vue'
+import { normalizePath } from 'vite'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 const shared = resolve(__dirname, 'src/shared')
 const rendererSrc = resolve(__dirname, 'src/renderer/src')
-const materialIconsSrc = resolve(
-  __dirname,
-  'node_modules/vscode-material-icons/generated/icons'
-)
+
+/** Forward-slash path so fast-glob sees `…/icons/*.svg` on Windows CI (backslashes break copy). */
+const materialIconsGlob = `${normalizePath(
+  resolve(__dirname, 'node_modules/vscode-material-icons/generated/icons'),
+)}/*.svg`
 
 export default defineConfig({
   main: {
@@ -38,7 +40,7 @@ export default defineConfig({
       viteStaticCopy({
         targets: [
           {
-            src: `${materialIconsSrc}/*.svg`,
+            src: materialIconsGlob,
             dest: 'material-icons'
           }
         ]

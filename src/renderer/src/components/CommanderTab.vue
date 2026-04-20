@@ -120,6 +120,17 @@ function resetSplit(): void {
  * → download. */
 const focusedPane = ref<"local" | "remote">("local");
 
+const hasLocalSelection = computed(
+  () =>
+    (props.tab.selectedLocalSet?.length ?? 0) > 0 ||
+    !!props.tab.selectedLocal,
+);
+const hasRemoteSelection = computed(
+  () =>
+    (props.tab.selectedRemoteSet?.length ?? 0) > 0 ||
+    !!props.tab.selectedRemote,
+);
+
 function startSplitDrag(e: MouseEvent): void {
   e.preventDefault();
   const container = containerEl.value;
@@ -1115,24 +1126,18 @@ function onSyncClose(
         <button
           type="button"
           class="bt-iconbtn"
-          data-tooltip="Upload selected →"
-          :disabled="!tab.isConnected"
-          @click="uploadSelected"
+          data-tooltip="Upload selection → remote folder (F5 / context menu)"
+          :disabled="!tab.isConnected || !hasLocalSelection"
+          @click="transferAllSelected('toRemote')"
         >
           <ChevronRight :size="14" />
         </button>
         <button
           type="button"
           class="bt-iconbtn"
-          data-tooltip="← Download selected"
-          :disabled="!tab.isConnected || !tab.selectedRemote"
-          @click="
-            (async () => {
-              if (!tab.selectedRemote) return;
-              const pick = await api.dialog.saveRemoteFile(tab.selectedRemote);
-              if (pick.ok && pick.data) downloadSelected(pick.data);
-            })()
-          "
+          data-tooltip="← Download selection to local folder (F5 / context menu)"
+          :disabled="!tab.isConnected || !hasRemoteSelection"
+          @click="transferAllSelected('toLocal')"
         >
           <ChevronLeft :size="14" />
         </button>
