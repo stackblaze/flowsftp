@@ -7,6 +7,12 @@
 #   git push origin v1.0.1
 #
 # Ensure package.json "version" matches the tag (without "v" prefix).
+#
+# macOS in-app updates: electron-updater downloads the ZIP, then Squirrel.Mac
+# replaces the app only if the new build is signed with the same Developer ID
+# as the running app. Unsigned CI builds → download works, install fails with a
+# code signature error. Add repo secrets (see Pack & publish step) and use a
+# paid Apple Developer account; see https://www.electron.build/code-signing
 
 name: Release
 
@@ -65,4 +71,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Optional — leave unset for unsigned builds. Required for macOS auto-update.
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: npx electron-builder --${{ matrix.platform }} --publish always
