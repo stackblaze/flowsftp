@@ -32,11 +32,9 @@ export default defineConfig({
     },
     plugins: [
       vue(),
-      // Self-host the VS Code Material file/folder SVGs at /material-icons/.
-      // They live in node_modules under vscode-material-icons/generated/icons
-      // and are referenced at runtime via getIconUrlForFilePath(path, '/material-icons').
-      // Both `dev` (served by Vite) and `build` (copied into out/renderer)
-      // resolve the URL the same way, so no environment-specific URL logic.
+      // Self-host Material file/folder SVGs under out/renderer/material-icons/.
+      // Renderer code uses `./material-icons` so img src works under file://
+      // (absolute /material-icons would resolve to the filesystem root).
       viteStaticCopy({
         targets: [
           {

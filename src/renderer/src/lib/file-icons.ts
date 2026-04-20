@@ -5,9 +5,13 @@
  * package — a self-hosted re-publish of the VS Code Material Icon Theme
  * SVGs. The SVGs themselves are copied into the renderer build at
  * `/material-icons/<name>.svg` by the `vite-plugin-static-copy` block in
- * `electron.vite.config.ts`, so the URLs returned here resolve identically
- * in `electron-vite dev` (served by Vite) and `electron-vite build`
- * (loaded from disk via `file://`).
+ * `electron.vite.config.ts`.
+ *
+ * The base path must be **relative** (`./material-icons`): in production the
+ * window loads `file://…/index.html`, and a leading `/` would resolve to
+ * `file:///material-icons/…` (disk root) — broken images. Relative URLs sit
+ * next to `index.html` in `out/renderer`. Dev still resolves `./…` against
+ * the Vite origin correctly.
  *
  * Why a thin wrapper instead of calling the package directly?
  *  - One place to set the {@link ICONS_URL} base path.
@@ -26,11 +30,10 @@ import {
 } from "vscode-material-icons";
 import type { LocalListEntry, RemoteListEntry } from "@shared/types";
 
-/** Base URL where the SVGs are served from. Must match the `dest` field
- *  in the `viteStaticCopy` target in `electron.vite.config.ts`. Leading
- *  slash is required so the path resolves from the renderer root regardless
- *  of which view is currently mounted. */
-const ICONS_URL = "/material-icons";
+/** Base URL where the SVGs are served from. Must match the `dest` field in
+ *  `viteStaticCopy`. Use a relative path so `file://` production loads resolve
+ *  beside `index.html`; a leading `/` breaks packaged builds. */
+const ICONS_URL = "./material-icons";
 
 type AnyEntry = LocalListEntry | RemoteListEntry;
 
