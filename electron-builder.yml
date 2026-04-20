@@ -1,0 +1,63 @@
+appId: com.synctron.app
+productName: Synctron
+directories:
+  buildResources: build
+files:
+  - '!**/.vscode/*'
+  - '!src/*'
+  - '!electron.vite.config.{js,ts,mjs,cjs}'
+  - '!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
+  - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
+  - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+asarUnpack:
+  - 'resources/**'
+win:
+  executableName: Synctron
+nsis:
+  artifactName: ${name}-${version}-setup.${ext}
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName}
+  createDesktopShortcut: always
+mac:
+  entitlementsInherit: build/entitlements.mac.plist
+  extendInfo:
+    - NSCameraUsageDescription: Application requests access to the device's camera.
+    - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
+    - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
+    - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
+  notarize: false
+dmg:
+  artifactName: ${name}-${version}.${ext}
+linux:
+  target:
+    - AppImage
+    - snap
+    - deb
+  maintainer: electronjs.org
+  category: Utility
+appImage:
+  artifactName: ${name}-${version}.${ext}
+npmRebuild: false
+# Auto-updates are wired through electron-updater (src/main/update-manager.ts).
+# Swap the provider below to match where you publish releases. Common options:
+#
+#   provider: github     # easiest path; uses GitHub Releases as the CDN
+#   owner: your-org
+#   repo: synctron
+#
+#   provider: s3         # S3 / MinIO bucket
+#   bucket: my-releases
+#   region: us-east-1
+#   path: synctron/
+#
+#   provider: generic    # any HTTPS host that serves the latest.yml manifest
+#   url: https://downloads.example.com/synctron
+#
+# After `npm run build:mac` (etc.) run `electron-builder --publish always`
+# to upload the artifacts AND the latest.yml/latest-mac.yml manifests that
+# electron-updater consumes. macOS auto-install requires a code-signed
+# build; unsigned dev builds will download successfully but won't replace
+# the app in place — the dialog surfaces that error.
+publish:
+  provider: generic
+  url: https://example.com/auto-updates

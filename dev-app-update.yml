@@ -1,0 +1,24 @@
+# dev-app-update.yml
+#
+# electron-updater reads this file in development so you can exercise the
+# whole update flow without packaging+publishing a release every time.
+# It is NOT bundled into production builds — the `publish` block in
+# electron-builder.yml takes over there.
+#
+# Common dev recipes:
+#
+# 1) Point at a static folder served by `npx http-server` while iterating:
+#      provider: generic
+#      url: http://localhost:8080/updates
+#
+# 2) Point at a real GitHub Releases page (private repos need GH_TOKEN):
+#      provider: github
+#      owner: your-org
+#      repo: synctron
+#
+# Until you actually publish a build with a higher version than the one
+# in package.json, electron-updater will report "no update available" — the
+# dialog will show that state cleanly so you can verify wiring.
+provider: generic
+url: https://example.com/auto-updates
+updaterCacheDirName: synctron-updater

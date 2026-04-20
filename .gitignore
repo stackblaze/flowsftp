@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+
+# Build output
+out/
+dist/
+release/
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+*.swp
+*.swo
+*~
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Electron-builder local artifacts
+*.dmg
+*.zip
+*.exe
+*.AppImage
+*.snap
+*.deb
+*.rpm
+*.pkg
+*.app
+
+# Coverage
+coverage/
+
+# Test temp
+.tmp/
