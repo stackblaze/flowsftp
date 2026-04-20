@@ -47,7 +47,9 @@ jobs:
       - name: Build app (typecheck + electron-vite)
         run: npm run build
 
+      # Use bash so mkdir -p / cp match Unix; PowerShell mkdir errors if build/ already exists (electron-vite creates it).
       - name: Prepare packaged-app icon
+        shell: bash
         run: |
           mkdir -p build
           cp resources/icon.png build/icon.png
