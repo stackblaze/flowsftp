@@ -20,12 +20,12 @@ function validationMessage(err: {
   return err.issues[0]?.message ?? "Invalid input";
 }
 
-export function registerSynctronIpc(
+export function registerFlowSftpIpc(
   sftp: SftpManager,
   createMainWindow: () => void,
 ): void {
-  ipcMain.removeHandler("synctron:app:paths");
-  ipcMain.handle("synctron:app:paths", (): Result<AppPaths> => {
+  ipcMain.removeHandler("flowsftp:app:paths");
+  ipcMain.handle("flowsftp:app:paths", (): Result<AppPaths> => {
     return {
       ok: true,
       data: {
@@ -35,9 +35,9 @@ export function registerSynctronIpc(
     };
   });
 
-  ipcMain.removeHandler("synctron:fs:local:list");
+  ipcMain.removeHandler("flowsftp:fs:local:list");
   ipcMain.handle(
-    "synctron:fs:local:list",
+    "flowsftp:fs:local:list",
     async (_e, raw: unknown): Promise<Result<LocalListEntry[]>> => {
       const parsed = localListSchema.safeParse(raw);
       if (!parsed.success) {
@@ -92,8 +92,8 @@ export function registerSynctronIpc(
     },
   );
 
-  ipcMain.removeHandler("synctron:sftp:connect");
-  ipcMain.handle("synctron:sftp:connect", async (event, raw: unknown) => {
+  ipcMain.removeHandler("flowsftp:sftp:connect");
+  ipcMain.handle("flowsftp:sftp:connect", async (event, raw: unknown) => {
     const parsed = sftpConnectSchema.safeParse(raw);
     if (!parsed.success) {
       return {
@@ -108,14 +108,14 @@ export function registerSynctronIpc(
     return sftp.connect(parsed.data, event.sender.id);
   });
 
-  ipcMain.removeHandler("synctron:window:new");
-  ipcMain.handle("synctron:window:new", (): { ok: true } => {
+  ipcMain.removeHandler("flowsftp:window:new");
+  ipcMain.handle("flowsftp:window:new", (): { ok: true } => {
     createMainWindow();
     return { ok: true };
   });
 
-  ipcMain.removeHandler("synctron:sftp:disconnect");
-  ipcMain.handle("synctron:sftp:disconnect", async (_e, raw: unknown) => {
+  ipcMain.removeHandler("flowsftp:sftp:disconnect");
+  ipcMain.handle("flowsftp:sftp:disconnect", async (_e, raw: unknown) => {
     const parsed = connectionIdSchema.safeParse(raw);
     if (!parsed.success) {
       return {
@@ -130,8 +130,8 @@ export function registerSynctronIpc(
     return sftp.disconnect(parsed.data.connectionId);
   });
 
-  ipcMain.removeHandler("synctron:sftp:list");
-  ipcMain.handle("synctron:sftp:list", async (_e, raw: unknown) => {
+  ipcMain.removeHandler("flowsftp:sftp:list");
+  ipcMain.handle("flowsftp:sftp:list", async (_e, raw: unknown) => {
     const parsed = sftpListSchema.safeParse(raw);
     if (!parsed.success) {
       return {
@@ -147,8 +147,8 @@ export function registerSynctronIpc(
     return sftp.list(connectionId, path);
   });
 
-  ipcMain.removeHandler("synctron:sftp:upload");
-  ipcMain.handle("synctron:sftp:upload", async (_e, raw: unknown) => {
+  ipcMain.removeHandler("flowsftp:sftp:upload");
+  ipcMain.handle("flowsftp:sftp:upload", async (_e, raw: unknown) => {
     const parsed = sftpUploadSchema.safeParse(raw);
     if (!parsed.success) {
       return {
@@ -164,8 +164,8 @@ export function registerSynctronIpc(
     return sftp.upload(connectionId, localPath, remotePath);
   });
 
-  ipcMain.removeHandler("synctron:sftp:download");
-  ipcMain.handle("synctron:sftp:download", async (_e, raw: unknown) => {
+  ipcMain.removeHandler("flowsftp:sftp:download");
+  ipcMain.handle("flowsftp:sftp:download", async (_e, raw: unknown) => {
     const parsed = sftpDownloadSchema.safeParse(raw);
     if (!parsed.success) {
       return {
@@ -191,9 +191,9 @@ export function registerSynctronIpc(
    * synced back to the server. A proper "Edit with…" round-trip can be added
    * later with a watcher on the temp path.
    */
-  ipcMain.removeHandler("synctron:sftp:openRemote");
+  ipcMain.removeHandler("flowsftp:sftp:openRemote");
   ipcMain.handle(
-    "synctron:sftp:openRemote",
+    "flowsftp:sftp:openRemote",
     async (_e, raw: unknown): Promise<Result<string>> => {
       const parsed = sftpOpenRemoteSchema.safeParse(raw);
       if (!parsed.success) {
@@ -208,7 +208,7 @@ export function registerSynctronIpc(
       }
       const { connectionId, remotePath } = parsed.data;
       const name = basename(remotePath.replace(/\\/g, "/")) || "file";
-      const dir = join(app.getPath("temp"), "synctron", connectionId);
+      const dir = join(app.getPath("temp"), "flowsftp", connectionId);
       try {
         await mkdir(dir, { recursive: true });
       } catch (e) {
@@ -231,9 +231,9 @@ export function registerSynctronIpc(
     },
   );
 
-  ipcMain.removeHandler("synctron:dialog:openFile");
+  ipcMain.removeHandler("flowsftp:dialog:openFile");
   ipcMain.handle(
-    "synctron:dialog:openFile",
+    "flowsftp:dialog:openFile",
     async (event): Promise<Result<string | null>> => {
       const win = BrowserWindow.fromWebContents(event.sender);
       const opts: OpenDialogOptions = { properties: ["openFile"] };
@@ -247,9 +247,9 @@ export function registerSynctronIpc(
     },
   );
 
-  ipcMain.removeHandler("synctron:dialog:openDirectory");
+  ipcMain.removeHandler("flowsftp:dialog:openDirectory");
   ipcMain.handle(
-    "synctron:dialog:openDirectory",
+    "flowsftp:dialog:openDirectory",
     async (event): Promise<Result<string | null>> => {
       const win = BrowserWindow.fromWebContents(event.sender);
       const opts: OpenDialogOptions = {
@@ -265,9 +265,9 @@ export function registerSynctronIpc(
     },
   );
 
-  ipcMain.removeHandler("synctron:shell:openPath");
+  ipcMain.removeHandler("flowsftp:shell:openPath");
   ipcMain.handle(
-    "synctron:shell:openPath",
+    "flowsftp:shell:openPath",
     async (_e, raw: unknown): Promise<Result<void>> => {
       const p =
         typeof raw === "string" ? raw : (raw as { path?: string })?.path;
@@ -285,9 +285,9 @@ export function registerSynctronIpc(
     },
   );
 
-  ipcMain.removeHandler("synctron:shell:showItemInFolder");
+  ipcMain.removeHandler("flowsftp:shell:showItemInFolder");
   ipcMain.handle(
-    "synctron:shell:showItemInFolder",
+    "flowsftp:shell:showItemInFolder",
     async (_e, raw: unknown): Promise<Result<void>> => {
       const p =
         typeof raw === "string" ? raw : (raw as { path?: string })?.path;
@@ -303,9 +303,9 @@ export function registerSynctronIpc(
   );
 
   /** Pick a directory, then full path for saving remote file basename(remote) into that folder. */
-  ipcMain.removeHandler("synctron:dialog:saveRemoteFile");
+  ipcMain.removeHandler("flowsftp:dialog:saveRemoteFile");
   ipcMain.handle(
-    "synctron:dialog:saveRemoteFile",
+    "flowsftp:dialog:saveRemoteFile",
     async (event, raw: unknown): Promise<Result<string | null>> => {
       const remotePath =
         typeof raw === "string"

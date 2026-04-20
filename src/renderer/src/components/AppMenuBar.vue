@@ -96,7 +96,7 @@ defineExpose({ menus: props.menus });
 
     <div class="menu__brand">
       <span class="menu__brand-dot" />
-      <span class="menu__brand-name">Synctron</span>
+      <span class="menu__brand-name">FlowSFTP</span>
     </div>
 
     <teleport to="body">

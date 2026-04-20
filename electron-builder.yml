@@ -1,5 +1,5 @@
-appId: com.synctron.app
-productName: Synctron
+appId: com.flowsftp.app
+productName: FlowSFTP
 directories:
   buildResources: build
 files:
@@ -12,7 +12,7 @@ files:
 asarUnpack:
   - 'resources/**'
 win:
-  executableName: Synctron
+  executableName: FlowSFTP
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
@@ -43,15 +43,15 @@ npmRebuild: false
 #
 #   provider: github     # easiest path; uses GitHub Releases as the CDN
 #   owner: your-org
-#   repo: synctron
+#   repo: flowsftp
 #
 #   provider: s3         # S3 / MinIO bucket
 #   bucket: my-releases
 #   region: us-east-1
-#   path: synctron/
+#   path: flowsftp/
 #
 #   provider: generic    # any HTTPS host that serves the latest.yml manifest
-#   url: https://downloads.example.com/synctron
+#   url: https://downloads.example.com/flowsftp
 #
 # After `npm run build:mac` (etc.) run `electron-builder --publish always`
 # to upload the artifacts AND the latest.yml/latest-mac.yml manifests that

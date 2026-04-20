@@ -514,7 +514,7 @@ function onRowMousedown(e: MouseEvent, entry: AnyEntry): void {
  *      to transfer, so the payload doesn't need to repeat the path list — but
  *      we include it anyway as a sanity-check / future-proofing.
  */
-const PANE_DRAG_MIME = "application/x-synctron";
+const PANE_DRAG_MIME = "application/x-flowsftp";
 type PaneDragPayload = {
   tabId: string;
   pane: "local" | "remote";

@@ -1,7 +1,7 @@
 @import "./base.css";
 
 /*
- * Synctron renderer theme.
+ * FlowSFTP renderer theme.
  * Uses CSS custom properties so light + dark themes share the same selectors.
  * Palette modeled on VS Code: dense but never cramped, accent-driven.
  */

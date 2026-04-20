@@ -14,7 +14,7 @@ function dispatch(cmd: MenuCommand): void {
     BrowserWindow.getAllWindows()[0]?.webContents ??
     null;
   if (!target) return;
-  target.send("synctron:menu:command", cmd);
+  target.send("flowsftp:menu:command", cmd);
 }
 
 const send =
@@ -211,7 +211,7 @@ export function setAppMenu(
         },
         { type: "separator" },
         {
-          label: "About Synctron",
+          label: "About FlowSFTP",
           click: send("about"),
         },
       ],

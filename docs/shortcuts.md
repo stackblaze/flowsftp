@@ -1,4 +1,4 @@
-# Synctron keyboard shortcuts
+# FlowSFTP keyboard shortcuts
 
 Milestone **M1** implements navigation via the UI (toolbar buttons). WinSCP-style shortcuts (F5 copy, F6 move, etc.) are planned for milestone **M7**.
 

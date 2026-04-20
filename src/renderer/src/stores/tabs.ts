@@ -163,7 +163,7 @@ function savePaneView(v: PaneViewDefaults): void {
 }
 
 /* --- File ops API ad-hoc shape ------------------------------------------- */
-/* The preload SynctronApi is owned by Agent A who is adding mkdir/rename/remove/
+/* The preload FlowSftpApi is owned by Agent A who is adding mkdir/rename/remove/
  * chmod/stat surfaces. We type a local extension shape so we can call them
  * without modifying preload. */
 type FsOpsApi = {

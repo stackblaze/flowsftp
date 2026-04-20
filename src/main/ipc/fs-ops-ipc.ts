@@ -37,9 +37,9 @@ function fsError(e: unknown): Result<never> {
 }
 
 export function registerFsOpsIpc(): void {
-  ipcMain.removeHandler("synctron:fs:local:mkdir");
+  ipcMain.removeHandler("flowsftp:fs:local:mkdir");
   ipcMain.handle(
-    "synctron:fs:local:mkdir",
+    "flowsftp:fs:local:mkdir",
     async (_e, raw: unknown): Promise<Result<void>> => {
       const parsed = localPathSchema.safeParse(raw);
       if (!parsed.success) {
@@ -61,9 +61,9 @@ export function registerFsOpsIpc(): void {
     },
   );
 
-  ipcMain.removeHandler("synctron:fs:local:rename");
+  ipcMain.removeHandler("flowsftp:fs:local:rename");
   ipcMain.handle(
-    "synctron:fs:local:rename",
+    "flowsftp:fs:local:rename",
     async (_e, raw: unknown): Promise<Result<void>> => {
       const parsed = localRenameSchema.safeParse(raw);
       if (!parsed.success) {
@@ -88,9 +88,9 @@ export function registerFsOpsIpc(): void {
     },
   );
 
-  ipcMain.removeHandler("synctron:fs:local:remove");
+  ipcMain.removeHandler("flowsftp:fs:local:remove");
   ipcMain.handle(
-    "synctron:fs:local:remove",
+    "flowsftp:fs:local:remove",
     async (_e, raw: unknown): Promise<Result<void>> => {
       const parsed = localRemoveSchema.safeParse(raw);
       if (!parsed.success) {
@@ -115,9 +115,9 @@ export function registerFsOpsIpc(): void {
     },
   );
 
-  ipcMain.removeHandler("synctron:fs:local:stat");
+  ipcMain.removeHandler("flowsftp:fs:local:stat");
   ipcMain.handle(
-    "synctron:fs:local:stat",
+    "flowsftp:fs:local:stat",
     async (_e, raw: unknown): Promise<Result<FileStat>> => {
       const parsed = localPathSchema.safeParse(raw);
       if (!parsed.success) {
@@ -149,9 +149,9 @@ export function registerFsOpsIpc(): void {
     },
   );
 
-  ipcMain.removeHandler("synctron:fs:local:readText");
+  ipcMain.removeHandler("flowsftp:fs:local:readText");
   ipcMain.handle(
-    "synctron:fs:local:readText",
+    "flowsftp:fs:local:readText",
     async (_e, raw: unknown): Promise<Result<string>> => {
       const parsed = localReadTextSchema.safeParse(raw);
       if (!parsed.success) {
@@ -185,9 +185,9 @@ export function registerFsOpsIpc(): void {
     },
   );
 
-  ipcMain.removeHandler("synctron:fs:local:writeText");
+  ipcMain.removeHandler("flowsftp:fs:local:writeText");
   ipcMain.handle(
-    "synctron:fs:local:writeText",
+    "flowsftp:fs:local:writeText",
     async (_e, raw: unknown): Promise<Result<void>> => {
       const parsed = localWriteTextSchema.safeParse(raw);
       if (!parsed.success) {
@@ -220,9 +220,9 @@ export function registerFsOpsIpc(): void {
    * the parents on demand. Symlinks are skipped to avoid loops. Hidden dotfiles
    * are included (matches the file pane's listing).
    */
-  ipcMain.removeHandler("synctron:fs:local:walk");
+  ipcMain.removeHandler("flowsftp:fs:local:walk");
   ipcMain.handle(
-    "synctron:fs:local:walk",
+    "flowsftp:fs:local:walk",
     async (_e, raw: unknown): Promise<Result<WalkedEntry[]>> => {
       const parsed = localPathSchema.safeParse(raw);
       if (!parsed.success) {
@@ -251,9 +251,9 @@ export function registerFsOpsIpc(): void {
    * Used by the Properties dialog. Streaming (vs. readFile + hash) keeps
    * peak memory bounded so a 10 GB ISO doesn't blow up the main process.
    */
-  ipcMain.removeHandler("synctron:fs:local:hash");
+  ipcMain.removeHandler("flowsftp:fs:local:hash");
   ipcMain.handle(
-    "synctron:fs:local:hash",
+    "flowsftp:fs:local:hash",
     (_e, raw: unknown): Promise<Result<string>> => {
       const parsed = localHashSchema.safeParse(raw);
       if (!parsed.success) {

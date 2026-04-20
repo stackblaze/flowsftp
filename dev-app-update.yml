@@ -14,11 +14,11 @@
 # 2) Point at a real GitHub Releases page (private repos need GH_TOKEN):
 #      provider: github
 #      owner: your-org
-#      repo: synctron
+#      repo: flowsftp
 #
 # Until you actually publish a build with a higher version than the one
 # in package.json, electron-updater will report "no update available" — the
 # dialog will show that state cleanly so you can verify wiring.
 provider: generic
 url: https://example.com/auto-updates
-updaterCacheDirName: synctron-updater
+updaterCacheDirName: flowsftp-updater

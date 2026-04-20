@@ -607,7 +607,7 @@ onBeforeUnmount(() => {
 }
 
 .cd {
-  /* Sized to feel proportional to a typical Synctron window
+  /* Sized to feel proportional to a typical FlowSFTP window
    * (~1000–1200px wide). The clamps keep it compact on small windows
    * without growing past usable proportions on huge displays. */
   width: min(100%, 720px);

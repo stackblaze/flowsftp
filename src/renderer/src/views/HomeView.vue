@@ -473,9 +473,9 @@ const menus = computed(() => [
       },
       { type: "separator" as const },
       {
-        label: "About Synctron",
+        label: "About FlowSFTP",
         onSelect: () =>
-          showToast("Synctron — modern WinSCP-class SFTP client."),
+          showToast("FlowSFTP — modern WinSCP-class SFTP client."),
       },
     ],
   },
@@ -729,7 +729,7 @@ function handleMenuCommand(cmd: MenuCommand): void {
       queueStore.clearCompleted();
       return;
     case "about":
-      showToast("Synctron — modern WinSCP-class SFTP client.");
+      showToast("FlowSFTP — modern WinSCP-class SFTP client.");
       return;
     case "checkForUpdates":
       openUpdateDialog(true);
@@ -785,7 +785,7 @@ onBeforeUnmount(() => {
           />
           <div v-else class="home__placeholder">
             <Server :size="40" />
-            <h2>Welcome to Synctron</h2>
+            <h2>Welcome to FlowSFTP</h2>
             <p>
               Press <kbd>Ctrl/Cmd</kbd>+<kbd>L</kbd> to open the Login dialog,
               or <kbd>Ctrl/Cmd</kbd>+<kbd>T</kbd> for a new tab.

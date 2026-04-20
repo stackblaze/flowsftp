@@ -1,11 +1,11 @@
 import { contextBridge } from "electron";
 import { electronAPI } from "@electron-toolkit/preload";
-import { synctronApi } from "./api";
+import { flowSftpApi } from "./api";
 
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld("electron", electronAPI);
-    contextBridge.exposeInMainWorld("api", synctronApi);
+    contextBridge.exposeInMainWorld("api", flowSftpApi);
   } catch (error) {
     console.error(error);
   }
@@ -13,5 +13,5 @@ if (process.contextIsolated) {
   // @ts-expect-error legacy
   window.electron = electronAPI;
   // @ts-expect-error legacy
-  window.api = synctronApi;
+  window.api = flowSftpApi;
 }

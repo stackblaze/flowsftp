@@ -5,7 +5,7 @@ export type ShortcutHandlers = {
   newTab?: () => void;
   /** Ctrl/Cmd+W: close the active tab. */
   closeTab?: () => void;
-  /** Ctrl/Cmd+N: open a new Synctron window. */
+  /** Ctrl/Cmd+N: open a new FlowSFTP window. */
   newWindow?: () => void;
   /** Ctrl/Cmd+R: refresh both panes of the active tab. (was F5) */
   refreshAll?: () => void;

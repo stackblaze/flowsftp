@@ -1,4 +1,4 @@
-# Synctron
+# FlowSFTP
 
 Cross-platform desktop client for file transfers (WinSCP-style). **Milestone M1** includes SFTP: connect, browse remote, single-file upload and download.
 

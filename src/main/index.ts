@@ -2,7 +2,7 @@ import { app, BrowserWindow } from "electron";
 import { join } from "path";
 import { electronApp, optimizer } from "@electron-toolkit/utils";
 import { SftpManager } from "./sftp/sftp-manager";
-import { registerSynctronIpc } from "./ipc/synctron-ipc";
+import { registerFlowSftpIpc } from "./ipc/flowsftp-ipc";
 import { registerFsOpsIpc } from "./ipc/fs-ops-ipc";
 import { registerSftpOpsIpc } from "./ipc/sftp-ops-ipc";
 import { registerSessionsIpc } from "./sessions/sessions-ipc";
@@ -32,7 +32,7 @@ function openWindow(): void {
 }
 
 app.whenReady().then(() => {
-  electronApp.setAppUserModelId("com.synctron.app");
+  electronApp.setAppUserModelId("com.flowsftp.app");
 
   const sessionsStore = new SessionsStore();
 
@@ -45,7 +45,7 @@ app.whenReady().then(() => {
 
   updateManager = new UpdateManager();
 
-  registerSynctronIpc(sftpManager, openWindow);
+  registerFlowSftpIpc(sftpManager, openWindow);
   registerSessionsIpc(sessionsStore);
   registerTransferIpc(transferEngine, transferQueue);
   registerFsOpsIpc();

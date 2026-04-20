@@ -89,7 +89,7 @@ const message = computed<string>(() => {
     case "downloading":
       return `Downloading at ${formatRate(props.state.bytesPerSecond)}.`;
     case "downloaded":
-      return `Version ${props.state.version} has been downloaded. Restart Synctron to finish installing.`;
+      return `Version ${props.state.version} has been downloaded. Restart FlowSFTP to finish installing.`;
     case "not-available":
       return `Version ${cur} is the latest.`;
     case "error":

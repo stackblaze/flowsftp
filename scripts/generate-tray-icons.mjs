@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Generates the Synctron tray icons:
+ * Generates the FlowSFTP tray icons:
  *   resources/tray-iconTemplate.png      (22x22, used by macOS — alpha only)
  *   resources/tray-iconTemplate@2x.png   (44x44, retina variant for macOS)
  *   resources/tray-icon.png              (22x22 dark glyph for Windows/Linux)

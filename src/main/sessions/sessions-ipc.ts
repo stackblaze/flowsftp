@@ -22,7 +22,7 @@ const EXPORT_FORMAT_VERSION = 1;
  *  intentionally portable — a plain JSON document a user could hand-edit
  *  if they really wanted to. */
 type ExportFile = {
-  $schema: "synctron-sessions/v1";
+  $schema: "flowsftp-sessions/v1";
   version: number;
   exportedAt: string;
   appVersion: string;
@@ -46,9 +46,9 @@ function asInternal(e: unknown): Result<never> {
 }
 
 export function registerSessionsIpc(store: SessionsStore): void {
-  ipcMain.removeHandler("synctron:sessions:list");
+  ipcMain.removeHandler("flowsftp:sessions:list");
   ipcMain.handle(
-    "synctron:sessions:list",
+    "flowsftp:sessions:list",
     async (): Promise<Result<Session[]>> => {
       try {
         return { ok: true, data: await store.list() };
@@ -58,9 +58,9 @@ export function registerSessionsIpc(store: SessionsStore): void {
     },
   );
 
-  ipcMain.removeHandler("synctron:sessions:create");
+  ipcMain.removeHandler("flowsftp:sessions:create");
   ipcMain.handle(
-    "synctron:sessions:create",
+    "flowsftp:sessions:create",
     async (_e, raw: unknown): Promise<Result<Session>> => {
       const parsed = sessionInputSchema.safeParse(raw);
       if (!parsed.success) {
@@ -81,9 +81,9 @@ export function registerSessionsIpc(store: SessionsStore): void {
     },
   );
 
-  ipcMain.removeHandler("synctron:sessions:update");
+  ipcMain.removeHandler("flowsftp:sessions:update");
   ipcMain.handle(
-    "synctron:sessions:update",
+    "flowsftp:sessions:update",
     async (_e, raw: unknown): Promise<Result<Session>> => {
       const parsed = sessionUpdateSchema.safeParse(raw);
       if (!parsed.success) {
@@ -107,9 +107,9 @@ export function registerSessionsIpc(store: SessionsStore): void {
     },
   );
 
-  ipcMain.removeHandler("synctron:sessions:remove");
+  ipcMain.removeHandler("flowsftp:sessions:remove");
   ipcMain.handle(
-    "synctron:sessions:remove",
+    "flowsftp:sessions:remove",
     async (_e, raw: unknown): Promise<Result<void>> => {
       const parsed = sessionIdSchema.safeParse(raw);
       if (!parsed.success) {
@@ -131,9 +131,9 @@ export function registerSessionsIpc(store: SessionsStore): void {
     },
   );
 
-  ipcMain.removeHandler("synctron:sessions:duplicate");
+  ipcMain.removeHandler("flowsftp:sessions:duplicate");
   ipcMain.handle(
-    "synctron:sessions:duplicate",
+    "flowsftp:sessions:duplicate",
     async (_e, raw: unknown): Promise<Result<Session>> => {
       const parsed = sessionIdSchema.safeParse(raw);
       if (!parsed.success) {
@@ -159,22 +159,22 @@ export function registerSessionsIpc(store: SessionsStore): void {
    * Cancelling the dialog is not an error — the renderer treats `path:
    * null` as a normal user-initiated cancel.
    */
-  ipcMain.removeHandler("synctron:sessions:export");
+  ipcMain.removeHandler("flowsftp:sessions:export");
   ipcMain.handle(
-    "synctron:sessions:export",
+    "flowsftp:sessions:export",
     async (event): Promise<Result<SessionsExportResult>> => {
       try {
         const all = await store.list();
         const win = BrowserWindow.fromWebContents(event.sender);
-        const defaultName = `synctron-sessions-${formatStamp()}.json`;
+        const defaultName = `flowsftp-sessions-${formatStamp()}.json`;
         const r = win
           ? await dialog.showSaveDialog(win, {
               defaultPath: defaultName,
-              filters: [{ name: "Synctron sessions", extensions: ["json"] }],
+              filters: [{ name: "FlowSFTP sessions", extensions: ["json"] }],
             })
           : await dialog.showSaveDialog({
               defaultPath: defaultName,
-              filters: [{ name: "Synctron sessions", extensions: ["json"] }],
+              filters: [{ name: "FlowSFTP sessions", extensions: ["json"] }],
             });
         if (r.canceled || !r.filePath) {
           return { ok: true, data: { path: null, count: 0 } };
@@ -193,7 +193,7 @@ export function registerSessionsIpc(store: SessionsStore): void {
           notes: s.notes,
         }));
         const payload: ExportFile = {
-          $schema: "synctron-sessions/v1",
+          $schema: "flowsftp-sessions/v1",
           version: EXPORT_FORMAT_VERSION,
           exportedAt: new Date().toISOString(),
           appVersion: app.getVersion(),
@@ -215,16 +215,16 @@ export function registerSessionsIpc(store: SessionsStore): void {
    * against the existing zod schema, and create the survivors via
    * `store.importMany` (which also dedupes on host+port+user).
    */
-  ipcMain.removeHandler("synctron:sessions:import");
+  ipcMain.removeHandler("flowsftp:sessions:import");
   ipcMain.handle(
-    "synctron:sessions:import",
+    "flowsftp:sessions:import",
     async (event): Promise<Result<SessionsImportResult>> => {
       try {
         const win = BrowserWindow.fromWebContents(event.sender);
         const opts: Electron.OpenDialogOptions = {
           properties: ["openFile"],
           filters: [
-            { name: "Synctron sessions", extensions: ["json"] },
+            { name: "FlowSFTP sessions", extensions: ["json"] },
             { name: "All files", extensions: ["*"] },
           ],
         };
@@ -265,7 +265,7 @@ export function registerSessionsIpc(store: SessionsStore): void {
             error: {
               code: "VALIDATION",
               message:
-                "No sessions found in file. Expected a Synctron sessions export or a JSON array.",
+                "No sessions found in file. Expected a FlowSFTP sessions export or a JSON array.",
             },
           };
         }

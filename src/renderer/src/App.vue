@@ -19,7 +19,7 @@ onMounted(async () => {
     // Stores may not be available on first wiring or in tests; the renderer
     // should still mount so the user sees the empty shell rather than a
     // white screen.
-    console.warn("Synctron store init failed:", err);
+    console.warn("FlowSFTP store init failed:", err);
   }
 });
 </script>

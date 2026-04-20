@@ -9,7 +9,7 @@ import type { Job, Result, TransferEvent } from "../../shared/types";
 import type { TransferEngine } from "../transfer/engine";
 import type { TransferQueue } from "../transfer/queue";
 
-const EVENT_CHANNEL = "synctron:transfer:event";
+const EVENT_CHANNEL = "flowsftp:transfer:event";
 
 function validationMessage(err: {
   issues: readonly { message: string }[];
@@ -32,14 +32,14 @@ export function registerTransferIpc(
 ): void {
   queue.on(broadcast);
 
-  ipcMain.removeHandler("synctron:transfer:list");
-  ipcMain.handle("synctron:transfer:list", (): Result<Job[]> => {
+  ipcMain.removeHandler("flowsftp:transfer:list");
+  ipcMain.handle("flowsftp:transfer:list", (): Result<Job[]> => {
     return { ok: true, data: queue.list() };
   });
 
-  ipcMain.removeHandler("synctron:transfer:enqueue");
+  ipcMain.removeHandler("flowsftp:transfer:enqueue");
   ipcMain.handle(
-    "synctron:transfer:enqueue",
+    "flowsftp:transfer:enqueue",
     (_e, raw: unknown): Result<Job[]> => {
       const parsed = enqueueJobsSchema.safeParse(raw);
       if (!parsed.success) {
@@ -57,8 +57,8 @@ export function registerTransferIpc(
     },
   );
 
-  ipcMain.removeHandler("synctron:transfer:pause");
-  ipcMain.handle("synctron:transfer:pause", (_e, raw: unknown): Result<void> => {
+  ipcMain.removeHandler("flowsftp:transfer:pause");
+  ipcMain.handle("flowsftp:transfer:pause", (_e, raw: unknown): Result<void> => {
     const parsed = jobIdSchema.safeParse(raw);
     if (!parsed.success) {
       return {
@@ -74,8 +74,8 @@ export function registerTransferIpc(
     return { ok: true, data: undefined };
   });
 
-  ipcMain.removeHandler("synctron:transfer:resume");
-  ipcMain.handle("synctron:transfer:resume", (_e, raw: unknown): Result<void> => {
+  ipcMain.removeHandler("flowsftp:transfer:resume");
+  ipcMain.handle("flowsftp:transfer:resume", (_e, raw: unknown): Result<void> => {
     const parsed = jobIdSchema.safeParse(raw);
     if (!parsed.success) {
       return {
@@ -91,8 +91,8 @@ export function registerTransferIpc(
     return { ok: true, data: undefined };
   });
 
-  ipcMain.removeHandler("synctron:transfer:cancel");
-  ipcMain.handle("synctron:transfer:cancel", (_e, raw: unknown): Result<void> => {
+  ipcMain.removeHandler("flowsftp:transfer:cancel");
+  ipcMain.handle("flowsftp:transfer:cancel", (_e, raw: unknown): Result<void> => {
     const parsed = jobIdSchema.safeParse(raw);
     if (!parsed.success) {
       return {
@@ -108,27 +108,27 @@ export function registerTransferIpc(
     return { ok: true, data: undefined };
   });
 
-  ipcMain.removeHandler("synctron:transfer:pauseAll");
-  ipcMain.handle("synctron:transfer:pauseAll", (): Result<void> => {
+  ipcMain.removeHandler("flowsftp:transfer:pauseAll");
+  ipcMain.handle("flowsftp:transfer:pauseAll", (): Result<void> => {
     engine.pauseAll();
     return { ok: true, data: undefined };
   });
 
-  ipcMain.removeHandler("synctron:transfer:resumeAll");
-  ipcMain.handle("synctron:transfer:resumeAll", (): Result<void> => {
+  ipcMain.removeHandler("flowsftp:transfer:resumeAll");
+  ipcMain.handle("flowsftp:transfer:resumeAll", (): Result<void> => {
     engine.resumeAll();
     return { ok: true, data: undefined };
   });
 
-  ipcMain.removeHandler("synctron:transfer:clearCompleted");
-  ipcMain.handle("synctron:transfer:clearCompleted", (): Result<void> => {
+  ipcMain.removeHandler("flowsftp:transfer:clearCompleted");
+  ipcMain.handle("flowsftp:transfer:clearCompleted", (): Result<void> => {
     engine.clearCompleted();
     return { ok: true, data: undefined };
   });
 
-  ipcMain.removeHandler("synctron:transfer:reorder");
+  ipcMain.removeHandler("flowsftp:transfer:reorder");
   ipcMain.handle(
-    "synctron:transfer:reorder",
+    "flowsftp:transfer:reorder",
     (_e, raw: unknown): Result<void> => {
       const parsed = reorderJobsSchema.safeParse(raw);
       if (!parsed.success) {
@@ -146,8 +146,8 @@ export function registerTransferIpc(
     },
   );
 
-  ipcMain.removeHandler("synctron:transfer:remove");
-  ipcMain.handle("synctron:transfer:remove", (_e, raw: unknown): Result<void> => {
+  ipcMain.removeHandler("flowsftp:transfer:remove");
+  ipcMain.handle("flowsftp:transfer:remove", (_e, raw: unknown): Result<void> => {
     const parsed = jobIdSchema.safeParse(raw);
     if (!parsed.success) {
       return {
@@ -163,17 +163,17 @@ export function registerTransferIpc(
     return { ok: true, data: undefined };
   });
 
-  ipcMain.removeHandler("synctron:transfer:getConcurrency");
+  ipcMain.removeHandler("flowsftp:transfer:getConcurrency");
   ipcMain.handle(
-    "synctron:transfer:getConcurrency",
+    "flowsftp:transfer:getConcurrency",
     (): Result<{ global: number; perSession: number }> => {
       return { ok: true, data: engine.getConcurrency() };
     },
   );
 
-  ipcMain.removeHandler("synctron:transfer:setConcurrency");
+  ipcMain.removeHandler("flowsftp:transfer:setConcurrency");
   ipcMain.handle(
-    "synctron:transfer:setConcurrency",
+    "flowsftp:transfer:setConcurrency",
     (_e, raw: unknown): Result<{ global: number; perSession: number }> => {
       const parsed = concurrencySchema.safeParse(raw);
       if (!parsed.success) {

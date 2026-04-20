@@ -11,7 +11,7 @@
  *   - `setAutoDownload`: lets the renderer reflect a user preference into
  *     the manager (e.g. for users on metered connections).
  *
- * The state push channel (`synctron:update:event`) is wired in `UpdateManager`
+ * The state push channel (`flowsftp:update:event`) is wired in `UpdateManager`
  * directly so every renderer (multi-window) gets the same view.
  */
 
@@ -20,38 +20,38 @@ import type { Result, UpdateState } from "../../shared/types";
 import type { UpdateManager } from "../update-manager";
 
 export function registerUpdateIpc(updater: UpdateManager): void {
-  ipcMain.removeHandler("synctron:update:getState");
-  ipcMain.handle("synctron:update:getState", (): Result<UpdateState> => {
+  ipcMain.removeHandler("flowsftp:update:getState");
+  ipcMain.handle("flowsftp:update:getState", (): Result<UpdateState> => {
     return { ok: true, data: updater.getState() };
   });
 
-  ipcMain.removeHandler("synctron:update:check");
+  ipcMain.removeHandler("flowsftp:update:check");
   ipcMain.handle(
-    "synctron:update:check",
+    "flowsftp:update:check",
     async (): Promise<Result<UpdateState>> => {
       const state = await updater.check();
       return { ok: true, data: state };
     },
   );
 
-  ipcMain.removeHandler("synctron:update:download");
+  ipcMain.removeHandler("flowsftp:update:download");
   ipcMain.handle(
-    "synctron:update:download",
+    "flowsftp:update:download",
     async (): Promise<Result<UpdateState>> => {
       const state = await updater.download();
       return { ok: true, data: state };
     },
   );
 
-  ipcMain.removeHandler("synctron:update:install");
-  ipcMain.handle("synctron:update:install", (): Result<UpdateState> => {
+  ipcMain.removeHandler("flowsftp:update:install");
+  ipcMain.handle("flowsftp:update:install", (): Result<UpdateState> => {
     const state = updater.install();
     return { ok: true, data: state };
   });
 
-  ipcMain.removeHandler("synctron:update:setAutoDownload");
+  ipcMain.removeHandler("flowsftp:update:setAutoDownload");
   ipcMain.handle(
-    "synctron:update:setAutoDownload",
+    "flowsftp:update:setAutoDownload",
     (_e, raw: unknown): Result<void> => {
       const value =
         typeof raw === "boolean"

@@ -5,7 +5,7 @@ import icon from "../../resources/icon.png?asset";
 import type { SftpManager } from "./sftp/sftp-manager";
 
 /**
- * Creates a main Synctron commander window. Each window is isolated (own Vue app).
+ * Creates a main FlowSFTP commander window. Each window is isolated (own Vue app).
  * SFTP connections are tied to `webContents.id` for progress events and cleanup on close.
  */
 export function createMainWindow(sftp: SftpManager): BrowserWindow {
@@ -15,7 +15,7 @@ export function createMainWindow(sftp: SftpManager): BrowserWindow {
     minWidth: 800,
     minHeight: 520,
     show: false,
-    title: "Synctron",
+    title: "FlowSFTP",
     autoHideMenuBar: false,
     ...(process.platform === "linux" ? { icon } : {}),
     webPreferences: {

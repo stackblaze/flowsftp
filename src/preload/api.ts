@@ -24,7 +24,7 @@ import type {
 
 export type { MenuCommand };
 
-export type SynctronApi = {
+export type FlowSftpApi = {
   app: {
     getPaths: () => Promise<Result<AppPaths>>;
     /** Open another main commander window (multi-window). */
@@ -193,47 +193,47 @@ export type SynctronApi = {
   };
 };
 
-const PROGRESS_CH = "synctron:sftp:progress";
-const TRANSFER_EVENT_CH = "synctron:transfer:event";
-const UPDATE_EVENT_CH = "synctron:update:event";
+const PROGRESS_CH = "flowsftp:sftp:progress";
+const TRANSFER_EVENT_CH = "flowsftp:transfer:event";
+const UPDATE_EVENT_CH = "flowsftp:update:event";
 
-export const synctronApi: SynctronApi = {
+export const flowSftpApi: FlowSftpApi = {
   app: {
-    getPaths: () => ipcRenderer.invoke("synctron:app:paths"),
-    newWindow: () => ipcRenderer.invoke("synctron:window:new"),
+    getPaths: () => ipcRenderer.invoke("flowsftp:app:paths"),
+    newWindow: () => ipcRenderer.invoke("flowsftp:window:new"),
     platform: process.platform,
     onMenuCommand: (cb) => {
       const handler = (_e: unknown, cmd: MenuCommand): void => cb(cmd);
-      ipcRenderer.on("synctron:menu:command", handler);
-      return () => ipcRenderer.off("synctron:menu:command", handler);
+      ipcRenderer.on("flowsftp:menu:command", handler);
+      return () => ipcRenderer.off("flowsftp:menu:command", handler);
     },
   },
   sftp: {
-    connect: (input) => ipcRenderer.invoke("synctron:sftp:connect", input),
+    connect: (input) => ipcRenderer.invoke("flowsftp:sftp:connect", input),
     disconnect: (connectionId) =>
-      ipcRenderer.invoke("synctron:sftp:disconnect", { connectionId }),
+      ipcRenderer.invoke("flowsftp:sftp:disconnect", { connectionId }),
     cwd: (connectionId) =>
-      ipcRenderer.invoke("synctron:sftp:cwd", { connectionId }),
+      ipcRenderer.invoke("flowsftp:sftp:cwd", { connectionId }),
     realPath: (connectionId, path) =>
-      ipcRenderer.invoke("synctron:sftp:realPath", { connectionId, path }),
+      ipcRenderer.invoke("flowsftp:sftp:realPath", { connectionId, path }),
     list: (connectionId, path) =>
-      ipcRenderer.invoke("synctron:sftp:list", { connectionId, path }),
+      ipcRenderer.invoke("flowsftp:sftp:list", { connectionId, path }),
     walk: (connectionId, path) =>
-      ipcRenderer.invoke("synctron:sftp:walk", { connectionId, path }),
+      ipcRenderer.invoke("flowsftp:sftp:walk", { connectionId, path }),
     upload: (connectionId, localPath, remotePath) =>
-      ipcRenderer.invoke("synctron:sftp:upload", {
+      ipcRenderer.invoke("flowsftp:sftp:upload", {
         connectionId,
         localPath,
         remotePath,
       }),
     download: (connectionId, remotePath, localPath) =>
-      ipcRenderer.invoke("synctron:sftp:download", {
+      ipcRenderer.invoke("flowsftp:sftp:download", {
         connectionId,
         remotePath,
         localPath,
       }),
     openRemote: (connectionId, remotePath) =>
-      ipcRenderer.invoke("synctron:sftp:openRemote", {
+      ipcRenderer.invoke("flowsftp:sftp:openRemote", {
         connectionId,
         remotePath,
       }),
@@ -246,37 +246,37 @@ export const synctronApi: SynctronApi = {
       return () => ipcRenderer.removeListener(PROGRESS_CH, listener);
     },
     mkdir: (connectionId, path) =>
-      ipcRenderer.invoke("synctron:sftp:mkdir", { connectionId, path }),
+      ipcRenderer.invoke("flowsftp:sftp:mkdir", { connectionId, path }),
     rename: (connectionId, oldPath, newPath) =>
-      ipcRenderer.invoke("synctron:sftp:rename", {
+      ipcRenderer.invoke("flowsftp:sftp:rename", {
         connectionId,
         oldPath,
         newPath,
       }),
     remove: (connectionId, path, recursive) =>
-      ipcRenderer.invoke("synctron:sftp:remove", {
+      ipcRenderer.invoke("flowsftp:sftp:remove", {
         connectionId,
         path,
         recursive,
       }),
     chmod: (connectionId, path, mode) =>
-      ipcRenderer.invoke("synctron:sftp:chmod", { connectionId, path, mode }),
+      ipcRenderer.invoke("flowsftp:sftp:chmod", { connectionId, path, mode }),
     stat: (connectionId, path) =>
-      ipcRenderer.invoke("synctron:sftp:stat", { connectionId, path }),
+      ipcRenderer.invoke("flowsftp:sftp:stat", { connectionId, path }),
     readText: (connectionId, path, maxBytes) =>
-      ipcRenderer.invoke("synctron:sftp:readText", {
+      ipcRenderer.invoke("flowsftp:sftp:readText", {
         connectionId,
         path,
         maxBytes,
       }),
     writeText: (connectionId, path, contents) =>
-      ipcRenderer.invoke("synctron:sftp:writeText", {
+      ipcRenderer.invoke("flowsftp:sftp:writeText", {
         connectionId,
         path,
         contents,
       }),
     hash: (connectionId, path, algorithm) =>
-      ipcRenderer.invoke("synctron:sftp:hash", {
+      ipcRenderer.invoke("flowsftp:sftp:hash", {
         connectionId,
         path,
         algorithm,
@@ -284,50 +284,50 @@ export const synctronApi: SynctronApi = {
   },
   fs: {
     local: {
-      list: (path) => ipcRenderer.invoke("synctron:fs:local:list", { path }),
-      walk: (path) => ipcRenderer.invoke("synctron:fs:local:walk", { path }),
-      mkdir: (path) => ipcRenderer.invoke("synctron:fs:local:mkdir", { path }),
+      list: (path) => ipcRenderer.invoke("flowsftp:fs:local:list", { path }),
+      walk: (path) => ipcRenderer.invoke("flowsftp:fs:local:walk", { path }),
+      mkdir: (path) => ipcRenderer.invoke("flowsftp:fs:local:mkdir", { path }),
       rename: (oldPath, newPath) =>
-        ipcRenderer.invoke("synctron:fs:local:rename", { oldPath, newPath }),
+        ipcRenderer.invoke("flowsftp:fs:local:rename", { oldPath, newPath }),
       remove: (path, recursive) =>
-        ipcRenderer.invoke("synctron:fs:local:remove", { path, recursive }),
-      stat: (path) => ipcRenderer.invoke("synctron:fs:local:stat", { path }),
+        ipcRenderer.invoke("flowsftp:fs:local:remove", { path, recursive }),
+      stat: (path) => ipcRenderer.invoke("flowsftp:fs:local:stat", { path }),
       readText: (path, maxBytes) =>
-        ipcRenderer.invoke("synctron:fs:local:readText", { path, maxBytes }),
+        ipcRenderer.invoke("flowsftp:fs:local:readText", { path, maxBytes }),
       writeText: (path, contents) =>
-        ipcRenderer.invoke("synctron:fs:local:writeText", { path, contents }),
+        ipcRenderer.invoke("flowsftp:fs:local:writeText", { path, contents }),
       hash: (path, algorithm) =>
-        ipcRenderer.invoke("synctron:fs:local:hash", { path, algorithm }),
+        ipcRenderer.invoke("flowsftp:fs:local:hash", { path, algorithm }),
     },
   },
   dialog: {
-    openFile: () => ipcRenderer.invoke("synctron:dialog:openFile"),
-    openDirectory: () => ipcRenderer.invoke("synctron:dialog:openDirectory"),
+    openFile: () => ipcRenderer.invoke("flowsftp:dialog:openFile"),
+    openDirectory: () => ipcRenderer.invoke("flowsftp:dialog:openDirectory"),
     saveRemoteFile: (remotePath) =>
-      ipcRenderer.invoke("synctron:dialog:saveRemoteFile", { remotePath }),
+      ipcRenderer.invoke("flowsftp:dialog:saveRemoteFile", { remotePath }),
   },
   shell: {
-    openPath: (path) => ipcRenderer.invoke("synctron:shell:openPath", path),
+    openPath: (path) => ipcRenderer.invoke("flowsftp:shell:openPath", path),
     showItemInFolder: (path) =>
-      ipcRenderer.invoke("synctron:shell:showItemInFolder", path),
+      ipcRenderer.invoke("flowsftp:shell:showItemInFolder", path),
   },
   sessions: {
-    list: () => ipcRenderer.invoke("synctron:sessions:list"),
-    create: (input) => ipcRenderer.invoke("synctron:sessions:create", input),
+    list: () => ipcRenderer.invoke("flowsftp:sessions:list"),
+    create: (input) => ipcRenderer.invoke("flowsftp:sessions:create", input),
     update: (id, patch) =>
-      ipcRenderer.invoke("synctron:sessions:update", { id, patch }),
-    remove: (id) => ipcRenderer.invoke("synctron:sessions:remove", { id }),
-    duplicate: (id) => ipcRenderer.invoke("synctron:sessions:duplicate", { id }),
-    exportToFile: () => ipcRenderer.invoke("synctron:sessions:export"),
-    importFromFile: () => ipcRenderer.invoke("synctron:sessions:import"),
+      ipcRenderer.invoke("flowsftp:sessions:update", { id, patch }),
+    remove: (id) => ipcRenderer.invoke("flowsftp:sessions:remove", { id }),
+    duplicate: (id) => ipcRenderer.invoke("flowsftp:sessions:duplicate", { id }),
+    exportToFile: () => ipcRenderer.invoke("flowsftp:sessions:export"),
+    importFromFile: () => ipcRenderer.invoke("flowsftp:sessions:import"),
   },
   update: {
-    getState: () => ipcRenderer.invoke("synctron:update:getState"),
-    check: () => ipcRenderer.invoke("synctron:update:check"),
-    download: () => ipcRenderer.invoke("synctron:update:download"),
-    install: () => ipcRenderer.invoke("synctron:update:install"),
+    getState: () => ipcRenderer.invoke("flowsftp:update:getState"),
+    check: () => ipcRenderer.invoke("flowsftp:update:check"),
+    download: () => ipcRenderer.invoke("flowsftp:update:download"),
+    install: () => ipcRenderer.invoke("flowsftp:update:install"),
     setAutoDownload: (value) =>
-      ipcRenderer.invoke("synctron:update:setAutoDownload", { value }),
+      ipcRenderer.invoke("flowsftp:update:setAutoDownload", { value }),
     onChange: (cb) => {
       const listener = (_e: IpcRendererEvent, payload: UpdateEvent): void =>
         cb(payload.state);
@@ -336,20 +336,20 @@ export const synctronApi: SynctronApi = {
     },
   },
   transfer: {
-    list: () => ipcRenderer.invoke("synctron:transfer:list"),
-    enqueue: (jobs) => ipcRenderer.invoke("synctron:transfer:enqueue", { jobs }),
-    pause: (id) => ipcRenderer.invoke("synctron:transfer:pause", { id }),
-    resume: (id) => ipcRenderer.invoke("synctron:transfer:resume", { id }),
-    cancel: (id) => ipcRenderer.invoke("synctron:transfer:cancel", { id }),
-    pauseAll: () => ipcRenderer.invoke("synctron:transfer:pauseAll"),
-    resumeAll: () => ipcRenderer.invoke("synctron:transfer:resumeAll"),
-    clearCompleted: () => ipcRenderer.invoke("synctron:transfer:clearCompleted"),
+    list: () => ipcRenderer.invoke("flowsftp:transfer:list"),
+    enqueue: (jobs) => ipcRenderer.invoke("flowsftp:transfer:enqueue", { jobs }),
+    pause: (id) => ipcRenderer.invoke("flowsftp:transfer:pause", { id }),
+    resume: (id) => ipcRenderer.invoke("flowsftp:transfer:resume", { id }),
+    cancel: (id) => ipcRenderer.invoke("flowsftp:transfer:cancel", { id }),
+    pauseAll: () => ipcRenderer.invoke("flowsftp:transfer:pauseAll"),
+    resumeAll: () => ipcRenderer.invoke("flowsftp:transfer:resumeAll"),
+    clearCompleted: () => ipcRenderer.invoke("flowsftp:transfer:clearCompleted"),
     reorder: (orderedIds) =>
-      ipcRenderer.invoke("synctron:transfer:reorder", { orderedIds }),
-    remove: (id) => ipcRenderer.invoke("synctron:transfer:remove", { id }),
-    getConcurrency: () => ipcRenderer.invoke("synctron:transfer:getConcurrency"),
+      ipcRenderer.invoke("flowsftp:transfer:reorder", { orderedIds }),
+    remove: (id) => ipcRenderer.invoke("flowsftp:transfer:remove", { id }),
+    getConcurrency: () => ipcRenderer.invoke("flowsftp:transfer:getConcurrency"),
     setConcurrency: (opts) =>
-      ipcRenderer.invoke("synctron:transfer:setConcurrency", opts),
+      ipcRenderer.invoke("flowsftp:transfer:setConcurrency", opts),
     onEvent: (cb) => {
       const listener = (_e: IpcRendererEvent, ev: TransferEvent): void =>
         cb(ev);

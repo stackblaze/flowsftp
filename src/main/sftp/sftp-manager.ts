@@ -92,7 +92,7 @@ export class SftpManager {
     if (!entry) return;
     const wc = webContents.fromId(entry.ownerWebContentsId);
     if (!wc || wc.isDestroyed()) return;
-    wc.send("synctron:sftp:progress", payload);
+    wc.send("flowsftp:sftp:progress", payload);
   }
 
   private shouldEmit(entry: ClientEntry): boolean {
@@ -977,7 +977,7 @@ export class SftpManager {
     const remote = normalizePosixPath(remotePath);
     const tmp = join(
       tmpdir(),
-      `synctron-sftp-write-${randomUUID()}.tmp`,
+      `flowsftp-sftp-write-${randomUUID()}.tmp`,
     );
     try {
       await writeFile(tmp, contents, "utf8");

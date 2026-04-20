@@ -9,7 +9,7 @@ let tmpDir: string;
 let dbPath: string;
 
 beforeEach(() => {
-  tmpDir = mkdtempSync(join(tmpdir(), "synctron-jobstore-"));
+  tmpDir = mkdtempSync(join(tmpdir(), "flowsftp-jobstore-"));
   dbPath = join(tmpDir, "queue.db");
 });
 

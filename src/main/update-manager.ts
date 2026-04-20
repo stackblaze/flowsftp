@@ -1,5 +1,5 @@
 /**
- * Software update orchestration for Synctron.
+ * Software update orchestration for FlowSFTP.
  *
  * Wraps `electron-updater` so the renderer can drive a clean state-machine
  * UI without knowing about the underlying autoUpdater event soup. The
@@ -36,7 +36,7 @@ import {
 } from "electron-updater";
 import type { UpdateState } from "../shared/types";
 
-const UPDATE_EVENT_CH = "synctron:update:event";
+const UPDATE_EVENT_CH = "flowsftp:update:event";
 
 /** Re-check interval when the app stays open for long stretches. */
 const PERIODIC_CHECK_MS = 6 * 60 * 60 * 1000; // 6 hours
@@ -207,7 +207,7 @@ export class UpdateManager {
     if (this.state.status !== "downloaded") return this.state;
     /* `isSilent: false` shows the squirrel installer UI on Windows; users
      * see the install actually happening rather than a frozen-looking
-     * window. `isForceRunAfter: true` re-launches Synctron cleanly. */
+     * window. `isForceRunAfter: true` re-launches FlowSFTP cleanly. */
     setImmediate(() => {
       try {
         autoUpdater.quitAndInstall(false, true);

@@ -57,7 +57,7 @@ function summarize(s: Stats): string {
 }
 
 /**
- * Creates a system-tray (menu-bar) icon for Synctron so the user can
+ * Creates a system-tray (menu-bar) icon for FlowSFTP so the user can
  * minimize the main window during long transfers and still see/control the
  * queue. The tray menu shows a live summary of running/queued/paused jobs and
  * exposes Pause/Resume All + Quit. Click (Win/Linux) restores the window;
@@ -93,7 +93,7 @@ export class TrayManager {
     }
 
     this.tray = new Tray(image);
-    this.tray.setToolTip("Synctron");
+    this.tray.setToolTip("FlowSFTP");
 
     if (!isMac) {
       // On Windows/Linux, single-clicking the tray icon should restore the
@@ -149,7 +149,7 @@ export class TrayManager {
     const summary = summarize(stats);
 
     const template: Electron.MenuItemConstructorOptions[] = [
-      { label: "Show Synctron", click: () => this.showWindow() },
+      { label: "Show FlowSFTP", click: () => this.showWindow() },
       { type: "separator" },
       { label: summary, enabled: false },
       { type: "separator" },
@@ -164,14 +164,14 @@ export class TrayManager {
         click: () => this.engine.resumeAll(),
       },
       { type: "separator" },
-      { label: "Quit Synctron", click: () => app.quit() },
+      { label: "Quit FlowSFTP", click: () => app.quit() },
     ];
 
     this.tray.setContextMenu(Menu.buildFromTemplate(template));
     this.tray.setToolTip(
       stats.active === 0
-        ? "Synctron — idle"
-        : `Synctron — ${summary}`,
+        ? "FlowSFTP — idle"
+        : `FlowSFTP — ${summary}`,
     );
   }
 }

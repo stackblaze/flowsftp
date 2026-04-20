@@ -32,9 +32,9 @@ function validationResult(err: {
 }
 
 export function registerSftpOpsIpc(sftp: SftpManager): void {
-  ipcMain.removeHandler("synctron:sftp:cwd");
+  ipcMain.removeHandler("flowsftp:sftp:cwd");
   ipcMain.handle(
-    "synctron:sftp:cwd",
+    "flowsftp:sftp:cwd",
     async (_e, raw: unknown): Promise<Result<string>> => {
       const parsed = connectionIdSchema.safeParse(raw);
       if (!parsed.success) return validationResult(parsed.error);
@@ -42,9 +42,9 @@ export function registerSftpOpsIpc(sftp: SftpManager): void {
     },
   );
 
-  ipcMain.removeHandler("synctron:sftp:realPath");
+  ipcMain.removeHandler("flowsftp:sftp:realPath");
   ipcMain.handle(
-    "synctron:sftp:realPath",
+    "flowsftp:sftp:realPath",
     async (_e, raw: unknown): Promise<Result<string>> => {
       const parsed = sftpPathSchema.safeParse(raw);
       if (!parsed.success) return validationResult(parsed.error);
@@ -52,9 +52,9 @@ export function registerSftpOpsIpc(sftp: SftpManager): void {
     },
   );
 
-  ipcMain.removeHandler("synctron:sftp:mkdir");
+  ipcMain.removeHandler("flowsftp:sftp:mkdir");
   ipcMain.handle(
-    "synctron:sftp:mkdir",
+    "flowsftp:sftp:mkdir",
     async (_e, raw: unknown): Promise<Result<void>> => {
       const parsed = sftpPathSchema.safeParse(raw);
       if (!parsed.success) return validationResult(parsed.error);
@@ -62,9 +62,9 @@ export function registerSftpOpsIpc(sftp: SftpManager): void {
     },
   );
 
-  ipcMain.removeHandler("synctron:sftp:rename");
+  ipcMain.removeHandler("flowsftp:sftp:rename");
   ipcMain.handle(
-    "synctron:sftp:rename",
+    "flowsftp:sftp:rename",
     async (_e, raw: unknown): Promise<Result<void>> => {
       const parsed = sftpRenameSchema.safeParse(raw);
       if (!parsed.success) return validationResult(parsed.error);
@@ -76,9 +76,9 @@ export function registerSftpOpsIpc(sftp: SftpManager): void {
     },
   );
 
-  ipcMain.removeHandler("synctron:sftp:remove");
+  ipcMain.removeHandler("flowsftp:sftp:remove");
   ipcMain.handle(
-    "synctron:sftp:remove",
+    "flowsftp:sftp:remove",
     async (_e, raw: unknown): Promise<Result<void>> => {
       const parsed = sftpRemoveSchema.safeParse(raw);
       if (!parsed.success) return validationResult(parsed.error);
@@ -90,9 +90,9 @@ export function registerSftpOpsIpc(sftp: SftpManager): void {
     },
   );
 
-  ipcMain.removeHandler("synctron:sftp:chmod");
+  ipcMain.removeHandler("flowsftp:sftp:chmod");
   ipcMain.handle(
-    "synctron:sftp:chmod",
+    "flowsftp:sftp:chmod",
     async (_e, raw: unknown): Promise<Result<void>> => {
       const parsed = sftpChmodSchema.safeParse(raw);
       if (!parsed.success) return validationResult(parsed.error);
@@ -104,9 +104,9 @@ export function registerSftpOpsIpc(sftp: SftpManager): void {
     },
   );
 
-  ipcMain.removeHandler("synctron:sftp:stat");
+  ipcMain.removeHandler("flowsftp:sftp:stat");
   ipcMain.handle(
-    "synctron:sftp:stat",
+    "flowsftp:sftp:stat",
     async (_e, raw: unknown): Promise<Result<FileStat>> => {
       const parsed = sftpPathSchema.safeParse(raw);
       if (!parsed.success) return validationResult(parsed.error);
@@ -114,9 +114,9 @@ export function registerSftpOpsIpc(sftp: SftpManager): void {
     },
   );
 
-  ipcMain.removeHandler("synctron:sftp:readText");
+  ipcMain.removeHandler("flowsftp:sftp:readText");
   ipcMain.handle(
-    "synctron:sftp:readText",
+    "flowsftp:sftp:readText",
     async (_e, raw: unknown): Promise<Result<string>> => {
       const parsed = sftpReadTextSchema.safeParse(raw);
       if (!parsed.success) return validationResult(parsed.error);
@@ -128,9 +128,9 @@ export function registerSftpOpsIpc(sftp: SftpManager): void {
     },
   );
 
-  ipcMain.removeHandler("synctron:sftp:writeText");
+  ipcMain.removeHandler("flowsftp:sftp:writeText");
   ipcMain.handle(
-    "synctron:sftp:writeText",
+    "flowsftp:sftp:writeText",
     async (_e, raw: unknown): Promise<Result<void>> => {
       const parsed = sftpWriteTextSchema.safeParse(raw);
       if (!parsed.success) return validationResult(parsed.error);
@@ -142,9 +142,9 @@ export function registerSftpOpsIpc(sftp: SftpManager): void {
     },
   );
 
-  ipcMain.removeHandler("synctron:sftp:walk");
+  ipcMain.removeHandler("flowsftp:sftp:walk");
   ipcMain.handle(
-    "synctron:sftp:walk",
+    "flowsftp:sftp:walk",
     async (_e, raw: unknown): Promise<Result<WalkedEntry[]>> => {
       const parsed = sftpPathSchema.safeParse(raw);
       if (!parsed.success) return validationResult(parsed.error);
@@ -152,9 +152,9 @@ export function registerSftpOpsIpc(sftp: SftpManager): void {
     },
   );
 
-  ipcMain.removeHandler("synctron:sftp:hash");
+  ipcMain.removeHandler("flowsftp:sftp:hash");
   ipcMain.handle(
-    "synctron:sftp:hash",
+    "flowsftp:sftp:hash",
     async (_e, raw: unknown): Promise<Result<string>> => {
       const parsed = sftpHashSchema.safeParse(raw);
       if (!parsed.success) return validationResult(parsed.error);
