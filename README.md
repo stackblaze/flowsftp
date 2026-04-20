@@ -1,10 +1,12 @@
 # FlowSFTP
 
-Cross-platform desktop client for file transfers (WinSCP-style). **Milestone M1** includes SFTP: connect, browse remote, single-file upload and download.
+**FlowSFTP** is a **WinSCP-inspired**, **cross-platform** desktop SFTP client with a **simple, uncluttered UI**. It brings the familiar two-pane commander workflow and session-style login to **macOS, Windows, and Linux**—without the visual noise of heavier tools.
+
+**Milestone M1** focuses on SFTP: connect, browse remote and local trees, upload and download (including multi-select transfers aligned with keyboard shortcuts), plus a transfer queue and per-window sessions.
 
 ## Screenshot
 
-![FlowSFTP main window: dual panes, transfer queue, and connection status](./docs/screenshot.png)
+![FlowSFTP: Login dialog with site list, connection form, and commander window behind](./docs/screenshot.png)
 
 ## Stack
 
