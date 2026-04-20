@@ -1,8 +1,12 @@
 import sharp from "sharp";
 import { writeFileSync } from "fs";
+import { dirname, join } from "path";
+import { fileURLToPath } from "url";
 
-const SRC = "/tmp/flowsftp-src.png";
-const OUT = "/Users/dean/Documents/projects/stackblaze/flowsftp/resources/icon.png";
+const __dirname = dirname(fileURLToPath(import.meta.url));
+/** Source RGBA/RGB PNG (e.g. from image generation). Pass as argv[1] or default next to this script. */
+const SRC = process.argv[2] ?? join(__dirname, "flowsftp-src.png");
+const OUT = join(__dirname, "..", "resources", "icon.png");
 const SIZE = 1024;
 const BG_THRESHOLD = 200;
 

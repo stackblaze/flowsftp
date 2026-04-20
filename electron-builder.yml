@@ -19,6 +19,8 @@ nsis:
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
 mac:
+  target:
+    - dmg
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
     - NSCameraUsageDescription: Application requests access to the device's camera.
@@ -29,9 +31,10 @@ mac:
 dmg:
   artifactName: ${name}-${version}.${ext}
 linux:
+  # AppImage + deb — snap is omitted so Linux builds succeed on GitHub-hosted
+  # runners without extra snapcraft/LXD setup.
   target:
     - AppImage
-    - snap
     - deb
   maintainer: electronjs.org
   category: Utility
@@ -42,7 +45,7 @@ npmRebuild: false
 # Swap the provider below to match where you publish releases. Common options:
 #
 #   provider: github     # easiest path; uses GitHub Releases as the CDN
-#   owner: your-org
+#   owner: stackblaze
 #   repo: flowsftp
 #
 #   provider: s3         # S3 / MinIO bucket

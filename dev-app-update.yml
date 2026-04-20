@@ -13,7 +13,7 @@
 #
 # 2) Point at a real GitHub Releases page (private repos need GH_TOKEN):
 #      provider: github
-#      owner: your-org
+#      owner: stackblaze
 #      repo: flowsftp
 #
 # Until you actually publish a build with a higher version than the one
