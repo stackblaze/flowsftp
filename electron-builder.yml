@@ -62,5 +62,7 @@ npmRebuild: false
 # build; unsigned dev builds will download successfully but won't replace
 # the app in place — the dialog surfaces that error.
 publish:
-  provider: generic
-  url: https://example.com/auto-updates
+  provider: github
+  owner: stackblaze
+  repo: flowsftp
+  releaseType: release
