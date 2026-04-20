@@ -405,6 +405,10 @@ textarea {
 *::-webkit-scrollbar-track {
   background: transparent;
 }
+/* Where vertical + horizontal scrollbars meet; otherwise Chromium paints it white. */
+*::-webkit-scrollbar-corner {
+  background: var(--bt-panel);
+}
 
 /* Tooltips (data-tooltip) */
 [data-tooltip] {
