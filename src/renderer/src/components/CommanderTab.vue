@@ -80,7 +80,8 @@ const SPLIT_STORAGE_KEY = "flowsftp:commander:split-ratio";
 /** Fixed middle gutter (splitter + action column). Must match the grid
  *  template and the `.bt-splitter-h` / `.commander__center` widths. */
 const SPLITTER_PX = 10;
-const CENTER_COL_PX = 28;
+/** Wide enough for `.bt-iconbtn` (28px) + `.commander__center` horizontal padding. */
+const CENTER_COL_PX = 32;
 const MID_FIXED_PX = SPLITTER_PX + CENTER_COL_PX;
 
 /** Ratio 1–99 maps to `local : remote` fr weights (WinSCP-like: no hard
@@ -775,25 +776,29 @@ async function deleteMovedSource(move: PendingMove): Promise<void> {
  *  1. Burst uploads of N files would cause N back-to-back directory listings
  *     against the same dir. We coalesce by setting a 250ms debounce timer
  *     per pane — the actual refresh fires once after the last completion.
- *  2. The user might have navigated away mid-transfer. We compare the job's
- *     destination directory to the pane's *current* path before refreshing
- *     so we don't pull a now-irrelevant directory listing.
+ *  2. The user might have navigated away mid-transfer. We refresh only when
+ *     the job's destination file path still lies under the pane's *current*
+ *     directory (prefix match), so we don't list an irrelevant folder.
  */
 let remoteRefreshTimer: ReturnType<typeof setTimeout> | null = null;
 let localRefreshTimer: ReturnType<typeof setTimeout> | null = null;
 
-function remoteDirOf(remotePath: string): string {
-  const i = remotePath.lastIndexOf("/");
-  if (i <= 0) return "/";
-  return remotePath.slice(0, i);
-}
-function localDirOf(localPath: string): string {
-  const i = Math.max(localPath.lastIndexOf("/"), localPath.lastIndexOf("\\"));
-  if (i < 0) return localPath;
-  return localPath.slice(0, i);
-}
 function normalizeDir(p: string): string {
   return p.replace(/[\\/]+$/, "") || "/";
+}
+
+/**
+ * True when `completedDst` (a finished transfer destination file path) lies
+ * inside the directory currently shown in the pane (`viewRoot`). Single-file
+ * uploads use equality on the parent dir; directory uploads land in
+ * subfolders (`…/proj/a/b.txt`) so the parent listing never matched the old
+ * `remoteDirOf(job.dst) === remotePath` check and the pane stayed stale.
+ */
+function pathIsInsideViewRoot(viewRoot: string, completedDst: string): boolean {
+  const root = normalizeDir(viewRoot).replace(/\\/g, "/");
+  const dst = completedDst.replace(/\\/g, "/").replace(/\/+/g, "/");
+  if (root === "/") return dst === "/" || dst.startsWith("/");
+  return dst === root || dst.startsWith(root + "/");
 }
 
 function scheduleRemoteRefresh(): void {
@@ -835,13 +840,11 @@ onMounted(() => {
     if (job.status !== "completed") return;
     if (job.connectionId !== props.tab.connectionId) return;
     if (job.kind === "upload") {
-      const here = normalizeDir(props.tab.remotePath);
-      const there = normalizeDir(remoteDirOf(job.dst));
-      if (here === there) scheduleRemoteRefresh();
-    } else {
-      const here = normalizeDir(props.tab.localPath);
-      const there = normalizeDir(localDirOf(job.dst));
-      if (here === there) scheduleLocalRefresh();
+      if (pathIsInsideViewRoot(props.tab.remotePath, job.dst)) {
+        scheduleRemoteRefresh();
+      }
+    } else if (pathIsInsideViewRoot(props.tab.localPath, job.dst)) {
+      scheduleLocalRefresh();
     }
   });
 });
@@ -1111,7 +1114,7 @@ function onSyncClose(
       <div class="commander__center">
         <button
           type="button"
-          class="bt-iconbtn commander__center-btn"
+          class="bt-iconbtn"
           data-tooltip="Upload selected →"
           :disabled="!tab.isConnected"
           @click="uploadSelected"
@@ -1120,7 +1123,7 @@ function onSyncClose(
         </button>
         <button
           type="button"
-          class="bt-iconbtn commander__center-btn"
+          class="bt-iconbtn"
           data-tooltip="← Download selected"
           :disabled="!tab.isConnected || !tab.selectedRemote"
           @click="
@@ -1135,7 +1138,7 @@ function onSyncClose(
         </button>
         <button
           type="button"
-          class="bt-iconbtn commander__center-btn"
+          class="bt-iconbtn"
           data-tooltip="Refresh both panes (Ctrl/Cmd+R)"
           @click="refreshBoth"
         >
@@ -1143,7 +1146,7 @@ function onSyncClose(
         </button>
         <button
           type="button"
-          class="bt-iconbtn commander__center-btn"
+          class="bt-iconbtn"
           data-tooltip="Synchronize directories…"
           :disabled="!tab.isConnected"
           @click="openSync"
@@ -1247,11 +1250,6 @@ function onSyncClose(
   border-left: 1px solid var(--bt-border);
   border-right: 1px solid var(--bt-border);
 }
-.commander__center-btn {
-  width: 24px;
-  height: 24px;
-}
-
 .commander__pane-wrap {
   display: flex;
   flex-direction: column;

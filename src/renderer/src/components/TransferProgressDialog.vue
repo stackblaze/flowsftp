@@ -133,11 +133,45 @@ const queuedAhead = computed(() =>
     ["queued", "paused", "running"].includes(j.status),
   ),
 );
+
+/**
+ * Jobs that belong to the *current* multi-file wave for the overall bar.
+ * `queuedAhead` alone drops each file as soon as it hits `completed`, so
+ * the total byte denominator shrinks and the next file starts at 0 bytes —
+ * the percentage snaps backward (flicker). We keep a contiguous window
+ * from the first leading `completed` run before any active job through
+ * the last trailing `completed` after the last active job (typical queue
+ * layout during a folder copy with concurrency).
+ */
+const overallBatchJobs = computed(() => {
+  const list = props.jobs;
+  const activeIx = list
+    .map((j, i) =>
+      ["queued", "paused", "running"].includes(j.status) ? i : -1,
+    )
+    .filter((i) => i >= 0);
+  if (activeIx.length === 0) return [];
+
+  let lo = Math.min(...activeIx);
+  let hi = Math.max(...activeIx);
+  while (lo > 0 && list[lo - 1].status === "completed") lo--;
+  while (hi + 1 < list.length && list[hi + 1].status === "completed") hi++;
+
+  return list
+    .slice(lo, hi + 1)
+    .filter((j) =>
+      ["queued", "paused", "running", "completed"].includes(j.status),
+    );
+});
+
 const totalActiveBytes = computed(() =>
-  queuedAhead.value.reduce((s, j) => s + j.size, 0),
+  overallBatchJobs.value.reduce((s, j) => s + j.size, 0),
 );
 const totalActiveTransferred = computed(() =>
-  queuedAhead.value.reduce((s, j) => s + j.transferred, 0),
+  overallBatchJobs.value.reduce((s, j) => {
+    if (j.status === "completed") return s + j.size;
+    return s + Math.min(j.transferred, j.size);
+  }, 0),
 );
 
 const overallPct = computed(() => {
@@ -357,9 +391,9 @@ function fileBarLabel(j: Job): string {
           </div>
 
           <!-- Overall queue progress -->
-          <div v-if="queuedAhead.length > 1" class="tp__overall">
+          <div v-if="overallBatchJobs.length > 1" class="tp__overall">
             <div class="tp__overall-lbl">
-              Overall ({{ queuedAhead.length }} files,
+              Overall ({{ overallBatchJobs.length }} files,
               {{ formatBytes(totalActiveTransferred) }} /
               {{ formatBytes(totalActiveBytes) }})
             </div>
